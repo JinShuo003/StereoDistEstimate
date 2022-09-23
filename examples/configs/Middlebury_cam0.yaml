@@ -1,0 +1,21 @@
+# General sensor definitions.
+sensor_type: camera
+comment: VI-Sensor cam0 (MT9M034)
+
+# Sensor extrinsics wrt. the body-frame.
+timestamp: 1305031116.2757
+T_BS:
+  cols: 4
+  rows: 4
+  data: [ 1, 0, 0, 0,
+  				0, 1, 0, 0,
+  				0, 0, 1, 0,
+  				0, 0, 0, 1]
+
+# Camera specific definitions.
+rate_hz: 20
+resolution: [960, 540]
+camera_model: pinhole
+intrinsics: [866.87, 866.87, 396.135, 270.945] #fu, fv, cu, cv
+distortion_model: radial-tangential
+distortion_coefficients: [0, 0, 0, 0]
