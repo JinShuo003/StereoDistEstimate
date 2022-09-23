@@ -1,7 +1,10 @@
 #include "viewer/OpenGLWidget.h"
+
 #include "QRandomGenerator"
 #include "QtMath"
+
 #include "iostream"
+#include <thread>
 
 using std::cout;
 using std::endl;
@@ -262,8 +265,8 @@ void OpenGLWidget::GetGroundData()
 {
 	//生成地面棋盘数据
 	std::vector<std::vector<std::vector<float>>> vertex_ground_vec;
-	qint8 nSideLenth = 50;
-	qint8 nDivideTimes = 10;
+	int16_t nSideLenth = 50;
+	int16_t nDivideTimes = 10;
 	float step = nSideLenth / nDivideTimes;
 	//遍历每一个顶点，每一个顶点需要四个顶点绘制一个正方形
 	//遍历到的每个顶点为左上角，需要按照左上、左下、右下、右上的顺序插入
@@ -300,10 +303,10 @@ void OpenGLWidget::GetGroundData()
 	}
 	static float* vertex_ground = Q_NULLPTR;
 	if (Q_NULLPTR != vertex_ground) {
-		delete vertex_ground;
+		delete[] vertex_ground;
 	}
 	//正方形数量有nDivideTimes * nDivideTimes个，每个正方形有4个顶点，每个顶点维度为6
-	vertex_ground = new float[nDivideTimes * nDivideTimes * 4 * 6];
+	vertex_ground = new float[(int64)nDivideTimes * nDivideTimes * 4 * 6];
 	for (int i = 0; i < nDivideTimes; i++)
 	{
 		for (int j = 0; j < nDivideTimes; j++)
@@ -567,6 +570,7 @@ void OpenGLWidget::paintGL() {
 	if (bIs3dLinesSetted == true) {
 		paintLine();
 	}
+	
 	//if (bIs3dPointsSetted == true) {
 	//	paintPoint();
 	//}
