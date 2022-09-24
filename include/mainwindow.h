@@ -107,9 +107,16 @@ private:
     //!!TODO,SURF特征匹配
     void SURFfeatureMatch();
     //单通道图片转三通道
-    cv::Mat OneChannelThreeChannel(const cv::Mat& src);
+    cv::Mat OneChannel2ThreeChannel(const cv::Mat& src);
     //在左右两张图上绘制匹配的关键点和匹配关系
-    cv::Mat DrawMatches();
+    cv::Mat DrawMatches(const cv::Mat& leftImg, const cv::Mat& rightImg, std::vector<cv::KeyPoint> vKeyPoints1,
+        std::vector<cv::KeyPoint> vKeyPoints2, std::vector<cv::DMatch> vInputMatch, std::vector<cv::Scalar> vColor);
+    //在特征匹配图上的左侧图像特征点旁绘制深度
+    cv::Mat DrawDepth(const cv::Mat& featureMatchImg, std::vector<cv::KeyPoint> vKeyPointsLeft, std::vector<cv::DMatch> vInputMatch,
+        std::vector<cv::Point3d> v3dPoints, std::vector<cv::Scalar> vColor);
+    //在特征匹配图上的左侧图像特征点旁绘制深度及误差
+    cv::Mat DrawDepthAndError(const cv::Mat& featureMatchImg, std::vector<cv::KeyPoint> vKeyPointsLeft, std::vector<cv::DMatch> vInputMatch,
+        std::vector<cv::Point3d> v3dPoints, std::vector<float> vError, std::vector<cv::Scalar> vColor);
     //检查图像尺寸是否合法
     bool CheckImgSize();
     //检查是否满足条件进行立体校正

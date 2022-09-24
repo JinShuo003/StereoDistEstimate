@@ -229,7 +229,7 @@ void MainWindow::SURFfeatureMatch()
     
 }
 
-cv::Mat MainWindow::OneChannelThreeChannel(const cv::Mat& src)
+cv::Mat MainWindow::OneChannel2ThreeChannel(const cv::Mat& src)
 {
     if (1 != src.channels()) {
         return cv::Mat();
@@ -244,54 +244,80 @@ cv::Mat MainWindow::OneChannelThreeChannel(const cv::Mat& src)
     return _threeChannelImg;
 }
 
-cv::Mat MainWindow::DrawMatches()
+cv::Mat MainWindow::DrawMatches(const cv::Mat& leftImg, const cv::Mat& rightImg, std::vector<cv::KeyPoint> vKeyPoints1,
+        std::vector<cv::KeyPoint> vKeyPoints2, std::vector<cv::DMatch> vInputMatch, std::vector<cv::Scalar> vColor)
 {
-    //生成随机颜色并记录
-    float fLineColor1 = 0.f;
-    float fLineColor2 = 0.f;
-    float fLineColor3 = 0.f;
-    imgFeatureInformation.vColor.clear();
-    for (int i = 0; i < imgFeatureInformation.matches.size(); i++)
-    {
-        fLineColor1 = (float)QRandomGenerator::global()->bounded(1.0) * 255;
-        fLineColor2 = (float)QRandomGenerator::global()->bounded(1.0) * 255;
-        fLineColor3 = (float)QRandomGenerator::global()->bounded(1.0) * 255;
-        imgFeatureInformation.vColor.push_back(cv::Scalar(fLineColor1, fLineColor2, fLineColor3));
+    cv::Mat _leftImg = leftImg.clone();
+    cv::Mat _rightImg = rightImg.clone();
+    //处理图像通道
+    if (_leftImg.channels() == 1) {
+        _leftImg = OneChannel2ThreeChannel(_leftImg);
+    }
+    if (_rightImg.channels() == 1) {
+        _rightImg = OneChannel2ThreeChannel(_rightImg);
     }
     //绘制特征点，并合并图像
-    cv::Mat rectifyLeftImg = ImageHandle::QImage2Mat(m_rectifyImgLeft);
-    rectifyLeftImg = OneChannelThreeChannel(rectifyLeftImg);
-    cv::Mat rectifyRightImg = ImageHandle::QImage2Mat(m_rectifyImgRight);
-    rectifyRightImg = OneChannelThreeChannel(rectifyRightImg);
-    for (int i = 0; i < imgFeatureInformation.matches.size(); i++)
+    for (int i = 0; i < vInputMatch.size(); i++)
     {
-        cv::Point keyPointLeft = imgFeatureInformation.vKeyPoints1[imgFeatureInformation.matches[i].queryIdx].pt;
-        cv::Point keyPointRight = imgFeatureInformation.vKeyPoints2[imgFeatureInformation.matches[i].trainIdx].pt;
-        cv::circle(rectifyLeftImg, keyPointLeft, 5, imgFeatureInformation.vColor[i], -1, cv::LINE_AA);
-        cv::circle(rectifyRightImg, keyPointRight, 5, imgFeatureInformation.vColor[i], -1, cv::LINE_AA);
+        cv::Point keyPointLeft = vKeyPoints1[vInputMatch[i].queryIdx].pt;
+        cv::Point keyPointRight = vKeyPoints2[vInputMatch[i].trainIdx].pt;
+        cv::circle(_leftImg, keyPointLeft, 5, vColor[i], -1, cv::LINE_AA);
+        cv::circle(_rightImg, keyPointRight, 5, vColor[i], -1, cv::LINE_AA);
     }
-    int w1 = rectifyLeftImg.cols; int h1 = rectifyLeftImg.rows;
-    int w2 = rectifyRightImg.cols; int h2 = rectifyRightImg.rows;
+    int w1 = _leftImg.cols; int h1 = _leftImg.rows;
+    int w2 = _rightImg.cols; int h2 = _rightImg.rows;
     int width = w1 + w2; int height = max(h1, h2);
     cv::Mat resultImg = cv::Mat(height, width, CV_8UC3, cv::Scalar::all(0));
     cv::Mat ROI_1 = resultImg(cv::Rect(0, 0, w1, h1));
     cv::Mat ROI_2 = resultImg(cv::Rect(w1, 0, w2, h2));
-    rectifyLeftImg.copyTo(ROI_1);
-    rectifyRightImg.copyTo(ROI_2);
+    _leftImg.copyTo(ROI_1);
+    _rightImg.copyTo(ROI_2);
     //在合并后图像上绘制匹配关键点连线
-    for (int i = 0; i < imgFeatureInformation.matches.size(); i++)
+    for (int i = 0; i < vInputMatch.size(); i++)
     {
-        cv::Point keyPointLeft = imgFeatureInformation.vKeyPoints1[imgFeatureInformation.matches[i].queryIdx].pt;
-        cv::Point keyPointRight = imgFeatureInformation.vKeyPoints2[imgFeatureInformation.matches[i].trainIdx].pt;
+        cv::Point keyPointLeft = vKeyPoints1[vInputMatch[i].queryIdx].pt;
+        cv::Point keyPointRight = vKeyPoints2[vInputMatch[i].trainIdx].pt;
         cv::line(resultImg, keyPointLeft, cv::Point(keyPointRight.x + w1, keyPointRight.y),
-            imgFeatureInformation.vColor[i], 3, cv::LINE_AA);
+            vColor[i], 3, cv::LINE_AA);
     }
     return resultImg;
+}
 
-    //绘制匹配
-    //cv::drawMatches(imgLeft, imgFeatureInformation.vKeyPoints1, imgRight, imgFeatureInformation.vKeyPoints2,
-    //    imgFeatureInformation.matches, img_matches, matchColor, cv::Scalar::all(-1),
-    //    std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+cv::Mat MainWindow::DrawDepth(const cv::Mat& featureMatchImg, std::vector<cv::KeyPoint> vKeyPointsLeft, 
+    std::vector<cv::DMatch> vInputMatch, std::vector<cv::Point3d> v3dPoints, std::vector<cv::Scalar> vColor){
+    cv::Mat _featureMatchImg = featureMatchImg.clone();
+    //处理图像通道
+    if (_featureMatchImg.channels() == 1) {
+        _featureMatchImg = OneChannel2ThreeChannel(_featureMatchImg);
+    }
+    for (int i = 0; i < vInputMatch.size(); i++)
+    {
+        cv::Point2d left2dPoint = vKeyPointsLeft[vInputMatch[i].queryIdx].pt;
+        cv::putText(_featureMatchImg, QString("%1").arg(QString::number(v3dPoints[i].z,
+            'f', 2)).toStdString(), cv::Point(left2dPoint.x, left2dPoint.y - 5),
+            cv::FONT_HERSHEY_TRIPLEX, 1.5, vColor[i], 2, cv::LINE_AA);
+    }
+    return _featureMatchImg;
+}
+
+cv::Mat MainWindow::DrawDepthAndError(const cv::Mat& featureMatchImg, std::vector<cv::KeyPoint> vKeyPointsLeft,
+    std::vector<cv::DMatch> vInputMatch, std::vector<cv::Point3d> v3dPoints, 
+    std::vector<float> vError, std::vector<cv::Scalar> vColor)
+{
+    cv::Mat _featureMatchImg = featureMatchImg.clone();
+    //处理图像通道
+    if (_featureMatchImg.channels() == 1) {
+        _featureMatchImg = OneChannel2ThreeChannel(_featureMatchImg);
+    }
+    for (int i = 0; i < vInputMatch.size(); i++)
+    {
+        cv::Point2d left2dPoint = vKeyPointsLeft[vInputMatch[i].queryIdx].pt;
+        QString sText = QString("%1, %2\%").arg(QString::number(v3dPoints[i].z, 'f', 2))
+            .arg(QString::number(vError[i] * 100.0, 'f', 2));
+        cv::putText(_featureMatchImg, sText.toStdString(), cv::Point(left2dPoint.x, left2dPoint.y - 5),
+            cv::FONT_HERSHEY_TRIPLEX, 1.5, vColor[i], 2, cv::LINE_AA);
+    }
+    return _featureMatchImg;
 }
 
 bool MainWindow::CheckImgSize()
@@ -695,14 +721,30 @@ bool MainWindow::Slot_ExtractFeaturesBtn_clicked()
     
     ORBfeatureMatch();
 
-    cv::Mat imgLeft = ImageHandle::QImage2Mat(m_rectifyImgLeft);
-    cv::Mat imgRight = ImageHandle::QImage2Mat(m_rectifyImgRight);
+    //为每对特征匹配生成配色
+    float fLineColor1 = 0.f;
+    float fLineColor2 = 0.f;
+    float fLineColor3 = 0.f;
+    imgFeatureInformation.vColor.clear();
+    for (int i = 0; i < imgFeatureInformation.matches.size(); i++)
+    {
+        fLineColor1 = (float)QRandomGenerator::global()->bounded(1.0) * 255;
+        fLineColor2 = (float)QRandomGenerator::global()->bounded(1.0) * 255;
+        fLineColor3 = (float)QRandomGenerator::global()->bounded(1.0) * 255;
+        imgFeatureInformation.vColor.push_back(cv::Scalar(fLineColor1, fLineColor2, fLineColor3));
+    }
 
     //绘制匹配结果并显示
-    cv::Mat img_matches = DrawMatches();
-    m_featureMatchImg = ImageHandle::Mat2QImage(img_matches);
+    cv::Mat imgMatches = DrawMatches(ImageHandle::QImage2Mat(m_rectifyImgLeft),ImageHandle::QImage2Mat(m_rectifyImgRight),
+        imgFeatureInformation.vKeyPoints1, imgFeatureInformation.vKeyPoints2, imgFeatureInformation.matches,
+        imgFeatureInformation.vColor);
+    QImage imgMatchesShow = ImageHandle::Mat2QImage(imgMatches);
+    ShowImage(imgMatchesShow, m_showImageArea::featureMatch);
 
-    ShowImage(m_featureMatchImg, m_showImageArea::featureMatch);
+    //转为灰度图保存
+    cv::Mat imgMatchesGray;
+    cv::cvtColor(imgMatches, imgMatchesGray, cv::COLOR_BGR2GRAY);
+    m_featureMatchImg = ImageHandle::Mat2QImage(imgMatchesGray);
 
     m_bIsFeatureExtracted = true;
 
@@ -711,7 +753,6 @@ bool MainWindow::Slot_ExtractFeaturesBtn_clicked()
 
 bool MainWindow::Slot_CalDepthBtn_clicked()
 {
-    //TODO，重复点击时，颜色产生不正常变动，有可能是RGB与BGR转换的问题
     //检查操作是否合法
     if (!m_bIsStereoCalibrated) {
         QMessageBox::warning(this, QString("Warning"), QString("Please calibrate the camera"));
@@ -763,24 +804,23 @@ bool MainWindow::Slot_CalDepthBtn_clicked()
         std::cout << "3dCoor: " << imgFeatureInformation.v3dPoints[i] << std::endl << std::endl;
     }
 
-    //二维图上显示深度信息
-    cv::Mat featureMatchImg = ImageHandle::QImage2Mat(m_featureMatchImg);
-    for (int i = 0; i < imgFeatureInformation.matches.size(); i++)
-    {
-        cv::Point2d left2dPoint = imgFeatureInformation.vKeyPoints1[imgFeatureInformation.matches[i].queryIdx].pt;
-        cv::putText(featureMatchImg, QString("%1").arg(QString::number(imgFeatureInformation.v3dPoints[i].z,
-            'f', 2)).toStdString(), cv::Point(left2dPoint.x, left2dPoint.y - 5), 
-            cv::FONT_HERSHEY_TRIPLEX, 1.5, imgFeatureInformation.vColor[i], 2, cv::LINE_AA);
-    }
-    ShowImage(ImageHandle::Mat2QImage(featureMatchImg), m_showImageArea::featureMatch);
-
+    //绘制匹配
+    cv::Mat imgMatches = DrawMatches(ImageHandle::QImage2Mat(m_rectifyImgLeft), ImageHandle::QImage2Mat(m_rectifyImgRight),
+        imgFeatureInformation.vKeyPoints1, imgFeatureInformation.vKeyPoints2, imgFeatureInformation.matches,
+        imgFeatureInformation.vColor);
+    //绘制深度
+    imgMatches = DrawDepth(imgMatches, imgFeatureInformation.vKeyPoints1, imgFeatureInformation.matches,
+        imgFeatureInformation.v3dPoints, imgFeatureInformation.vColor);
+    //显示在界面
+    QImage imgMatchesShow = ImageHandle::Mat2QImage(imgMatches);
+    ShowImage(imgMatchesShow, m_showImageArea::featureMatch);
+    
     //三维可视化
     if (Q_NULLPTR == m_pOpenGLWidget) {
         m_pOpenGLWidget = new OpenGLWidget(ui->groupBox_3dViewer);
         m_pOpenGLWidget->setGeometry(20, 20, ui->groupBox_3dViewer->width() - 40, ui->groupBox_3dViewer->height() - 40);
     }
     m_pOpenGLWidget->show();
-    //加载新数据
     m_pOpenGLWidget->SetLineData(imgFeatureInformation.v3dPoints, imgFeatureInformation.vColor);
 
     m_bIsDepthCalculated = true;
@@ -884,10 +924,8 @@ void MainWindow::Slot_LoadDisparityBtn_clicked() {
 }
 
 void MainWindow::Slot_CalErrorBtn_clicked() {
-    //TODO，重复点击时，颜色产生不正常变动，有可能是RGB与BGR转换的问题
     cv::Mat disparityImg = ImageHandle::QImage2Mat(m_disparityImg);
-    cv::Mat featureMatchImg = ImageHandle::QImage2Mat(m_featureMatchImg);
-
+    //计算误差
     imgFeatureInformation.vError.clear();
     for (int i = 0; i < imgFeatureInformation.matches.size(); i++)
     {
@@ -900,13 +938,18 @@ void MainWindow::Slot_CalErrorBtn_clicked() {
         std::cout << "Disparity: " << nDisparity << std::endl << std::endl;
 
         imgFeatureInformation.vError.push_back(qAbs(nParallax - nDisparity) / (float)nDisparity);
-
-        QString sText = QString("%1, %2\%").arg(QString::number(imgFeatureInformation.v3dPoints[i].z, 'f', 2))
-            .arg(QString::number(imgFeatureInformation.vError[i] * 100.0, 'f', 2));
-        cv::putText(featureMatchImg, sText.toStdString(), cv::Point(left2dPoint.x, left2dPoint.y - 5),
-            cv::FONT_HERSHEY_TRIPLEX, 1.5, imgFeatureInformation.vColor[i], 2, cv::LINE_AA);
     }
-    ShowImage(ImageHandle::Mat2QImage(featureMatchImg), m_showImageArea::featureMatch);
+
+    //绘制匹配
+    cv::Mat imgMatches = DrawMatches(ImageHandle::QImage2Mat(m_rectifyImgLeft), ImageHandle::QImage2Mat(m_rectifyImgRight),
+        imgFeatureInformation.vKeyPoints1, imgFeatureInformation.vKeyPoints2, imgFeatureInformation.matches,
+        imgFeatureInformation.vColor);
+    //绘制深度
+    imgMatches = DrawDepthAndError(imgMatches, imgFeatureInformation.vKeyPoints1, imgFeatureInformation.matches,
+        imgFeatureInformation.v3dPoints, imgFeatureInformation.vError, imgFeatureInformation.vColor);
+    //显示在界面
+    QImage imgMatchesShow = ImageHandle::Mat2QImage(imgMatches);
+    ShowImage(imgMatchesShow, m_showImageArea::featureMatch);
 
     //更新三维可视化数据
     m_pOpenGLWidget->show();
