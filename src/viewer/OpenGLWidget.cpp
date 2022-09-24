@@ -38,7 +38,7 @@ void OpenGLWidget::mousePressEvent(QMouseEvent* event)
 }
 
 
-void OpenGLWidget::SetLineData(std::vector<cv::Point3d> v3dPoints)
+void OpenGLWidget::SetLineData(std::vector<cv::Point3d> v3dPoints, std::vector<cv::Scalar> vColor)
 {
 	if (Q_NULLPTR != vertexData[4].vertex) {
 		delete[] vertexData[4].vertex;
@@ -48,35 +48,24 @@ void OpenGLWidget::SetLineData(std::vector<cv::Point3d> v3dPoints)
 	//第一维度为点数，总数为2*v3dPoints.size()，第二维度为6
 	for (int i = 0; i < 2*v3dPoints.size(); i++)
 	{
-		static float fLineColor1 = (float)QRandomGenerator::global()->bounded(1.0);
-		static float fLineColor2 = (float)QRandomGenerator::global()->bounded(1.0);
-		static float fLineColor3 = (float)QRandomGenerator::global()->bounded(1.0);
 		//偶数时，该点为原点
 		if (i % 2 == 0) {
 			vertexData[4].vertex[i * 6] = 0;
 			vertexData[4].vertex[i * 6 + 1] = 0;
 			vertexData[4].vertex[i * 6 + 2] = 0;
-			vertexData[4].vertex[i * 6 + 3] = fLineColor1;
-			vertexData[4].vertex[i * 6 + 4] = fLineColor2;
-			vertexData[4].vertex[i * 6 + 5] = fLineColor3;
+			vertexData[4].vertex[i * 6 + 3] = vColor[i / 2][2]/255;
+			vertexData[4].vertex[i * 6 + 4] = vColor[i / 2][1]/255;
+			vertexData[4].vertex[i * 6 + 5] = vColor[i / 2][1]/255;
 		}
 		//奇数时，该点为实际三维点
 		else {
 			vertexData[4].vertex[i * 6] = v3dPoints[i/2].x;
 			vertexData[4].vertex[i * 6 + 1] = -v3dPoints[i/2].y;
 			vertexData[4].vertex[i * 6 + 2] = -v3dPoints[i/2].z;
-			vertexData[4].vertex[i * 6 + 3] = fLineColor1;
-			vertexData[4].vertex[i * 6 + 4] = fLineColor2;
-			vertexData[4].vertex[i * 6 + 5] = fLineColor3;
-			fLineColor1 = (float)QRandomGenerator::global()->bounded(1.0);
-			fLineColor2 = (float)QRandomGenerator::global()->bounded(1.0);
-			fLineColor3 = (float)QRandomGenerator::global()->bounded(1.0);
+			vertexData[4].vertex[i * 6 + 3] = vColor[i / 2][2] / 255;
+			vertexData[4].vertex[i * 6 + 4] = vColor[i / 2][1] / 255;
+			vertexData[4].vertex[i * 6 + 5] = vColor[i / 2][0] / 255;
 		}
-		////二者色彩一致，用方向向量着色
-		//QVector3D directionVec = QVector3D(v3dPoints[i/2].x, v3dPoints[i/2].y, v3dPoints[i/2].z).normalized();
-		//vertexData[4].vertex[i * 6 + 3] = (float)QRandomGenerator::global()->bounded(1.0);
-		//vertexData[4].vertex[i * 6 + 4] = (float)QRandomGenerator::global()->bounded(1.0);
-		//vertexData[4].vertex[i * 6 + 5] = (float)QRandomGenerator::global()->bounded(1.0);
 	}
 	vertexData[4].pointDim = 6;
 	vertexData[4].vertexNum = v3dPoints.size() * 2;

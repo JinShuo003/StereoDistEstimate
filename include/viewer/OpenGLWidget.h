@@ -34,7 +34,7 @@ public:
 	//鼠标点击，获取焦点
 	void mousePressEvent(QMouseEvent* event);
 	//设置三维点数据
-	void SetLineData(std::vector<cv::Point3d> v3dPoints);
+	void SetLineData(std::vector<cv::Point3d> v3dPoints, std::vector<cv::Scalar> vColor);
 	//设置三维点数据
 	void SetLineData(std::vector<cv::Point3d> v3dPoints, std::vector<float> vError);
 

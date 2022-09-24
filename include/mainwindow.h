@@ -21,6 +21,7 @@ typedef struct {
     std::vector<int> vParallax;
     std::vector<float> vError;
     std::vector<cv::Point3d> v3dPoints;
+    std::vector<cv::Scalar> vColor;
 }stereoImgInfo;
 
 namespace Ui {
@@ -105,6 +106,10 @@ private:
     void ORBfeatureMatch();
     //!!TODO,SURF特征匹配
     void SURFfeatureMatch();
+    //单通道图片转三通道
+    cv::Mat OneChannelThreeChannel(const cv::Mat& src);
+    //在左右两张图上绘制匹配的关键点和匹配关系
+    cv::Mat DrawMatches();
     //检查图像尺寸是否合法
     bool CheckImgSize();
     //检查是否满足条件进行立体校正
@@ -121,7 +126,10 @@ private:
     //平均距离法特征点筛选
     std::vector<cv::DMatch> AverDisFilter(std::vector<cv::DMatch> vInputMatch);
     //基于规则的特征点筛选
-    std::vector<cv::DMatch> RuleFilter(std::vector<cv::KeyPoint> vKeyPoints1,
+    std::vector<cv::DMatch> StereoRuleFilter(std::vector<cv::KeyPoint> vKeyPoints1,
+        std::vector<cv::KeyPoint> vKeyPoints2, std::vector<cv::DMatch> vInputMatch);
+    //基于特征点位置的特征点筛选，筛去距离过近的特征点
+    std::vector<cv::DMatch> LocationFilter(std::vector<cv::KeyPoint> vKeyPoints1,
         std::vector<cv::KeyPoint> vKeyPoints2, std::vector<cv::DMatch> vInputMatch);
     //!!TODO,RANSAC方法特征点筛选
     std::vector<cv::DMatch> RansacFilter(cv::Mat imgLeft, std::vector<cv::DMatch> vInputMatch,

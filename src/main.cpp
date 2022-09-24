@@ -9,6 +9,18 @@
 using namespace cv;
 using namespace std;
 
+//Mat convertTo3Channels(const Mat& binImg)
+//{
+//    Mat three_channel = Mat::zeros(binImg.rows, binImg.cols, CV_8UC3);
+//    vector<Mat> channels;
+//    for (int i = 0; i < 3; i++)
+//    {
+//        channels.push_back(binImg);
+//    }
+//    merge(channels, three_channel);
+//    return three_channel;
+//}
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -16,8 +28,18 @@ int main(int argc, char *argv[])
     w.show();
     return a.exec();
 
-    //myDebug::EigenTest();
+
+    //Mat src = imread("./cam0.png", 0);
+    //if (src.data == Q_NULLPTR) {
+    //    return -1;
+    //}
+    //imshow("000", src);
+    //waitKey();
+    //Mat result = convertTo3Channels(src);
+    //imshow("111", result);
+    //waitKey();
     //system("pause");
     //return 0;
 
 }
+ 

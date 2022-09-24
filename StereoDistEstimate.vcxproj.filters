@@ -19,6 +19,15 @@
     <Filter Include="资源文件\shader">
       <UniqueIdentifier>{9b627f72-f478-47d7-a5ff-80e940c1d29d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="viewer">
+      <UniqueIdentifier>{612eb7d7-506e-4241-8a58-fdc86801594f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="viewer\src">
+      <UniqueIdentifier>{6d54ad67-7a26-497f-ac9d-8134277e92c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="viewer\include">
+      <UniqueIdentifier>{5a175468-67ba-4b87-a49f-97c7c528ab3a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\configuration.h">
@@ -39,14 +48,14 @@
     <ClInclude Include="include\myMath.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="include\viewer\camera.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="include\viewer\OpenGLWidget.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="include\yaml-cpp\yaml.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="include\viewer\camera.h">
+      <Filter>viewer\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\viewer\OpenGLWidget.h">
+      <Filter>viewer\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -68,12 +77,6 @@
     <ClCompile Include="src\myMath.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\viewer\camera.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\viewer\OpenGLWidget.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="x64\Release\moc_camera.cpp">
       <Filter>Generated files</Filter>
     </ClCompile>
@@ -88,6 +91,12 @@
     </ClCompile>
     <ClCompile Include="x64\Release\moc_OpenGLWidget.cpp">
       <Filter>Generated files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\viewer\camera.cpp">
+      <Filter>viewer\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\viewer\OpenGLWidget.cpp">
+      <Filter>viewer\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
