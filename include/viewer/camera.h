@@ -29,8 +29,8 @@ private:
 	float m_yaw = 0.f;
 	float m_pitch = 0.f;
 	float m_roll = 0.f;
-	float m_moveSpeed = 0.03f; 
-	float m_lookSpeed = 0.1f;
+	float m_moveSpeed = 0.02f; 
+	float m_lookSpeed = 0.05f;
 
 	//鼠标是否被按下
 	bool m_isLeftMouseBtnPressed = false;

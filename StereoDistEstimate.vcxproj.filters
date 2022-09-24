@@ -28,21 +28,15 @@
     <Filter Include="viewer\include">
       <UniqueIdentifier>{5a175468-67ba-4b87-a49f-97c7c528ab3a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="资源文件\ui">
+      <UniqueIdentifier>{dd53fc01-fa2d-4451-a841-5509dcffe7f5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\configuration.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="include\errorMessage.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="include\imageHandle.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="include\mainwindow.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="include\myDebug.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="include\myMath.h">
@@ -51,11 +45,11 @@
     <ClInclude Include="include\yaml-cpp\yaml.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="include\viewer\camera.h">
-      <Filter>viewer\include</Filter>
+    <ClInclude Include="GeneratedFiles\ui_configuration.h">
+      <Filter>Generated files</Filter>
     </ClInclude>
-    <ClInclude Include="include\viewer\OpenGLWidget.h">
-      <Filter>viewer\include</Filter>
+    <ClInclude Include="GeneratedFiles\ui_mainwindow.h">
+      <Filter>Generated files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -77,26 +71,26 @@
     <ClCompile Include="src\myMath.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\moc_camera.cpp">
-      <Filter>Generated files</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\moc_configuration.cpp">
-      <Filter>Generated files</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\moc_mainwindow.cpp">
-      <Filter>Generated files</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\moc_myDebug.cpp">
-      <Filter>Generated files</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Release\moc_OpenGLWidget.cpp">
-      <Filter>Generated files</Filter>
-    </ClCompile>
     <ClCompile Include="src\viewer\camera.cpp">
       <Filter>viewer\src</Filter>
     </ClCompile>
     <ClCompile Include="src\viewer\OpenGLWidget.cpp">
       <Filter>viewer\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\moc_camera.cpp">
+      <Filter>Generated files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\moc_configuration.cpp">
+      <Filter>Generated files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\moc_mainwindow.cpp">
+      <Filter>Generated files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\moc_myDebug.cpp">
+      <Filter>Generated files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\moc_OpenGLWidget.cpp">
+      <Filter>Generated files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -106,5 +100,28 @@
     <None Include="release\shader\transform_color.vert">
       <Filter>资源文件\shader</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="ui\mainwindow.ui">
+      <Filter>资源文件\ui</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\configuration.ui">
+      <Filter>资源文件\ui</Filter>
+    </CustomBuild>
+    <CustomBuild Include="include\configuration.h">
+      <Filter>头文件</Filter>
+    </CustomBuild>
+    <CustomBuild Include="include\mainwindow.h">
+      <Filter>头文件</Filter>
+    </CustomBuild>
+    <CustomBuild Include="include\myDebug.h">
+      <Filter>头文件</Filter>
+    </CustomBuild>
+    <CustomBuild Include="include\viewer\camera.h">
+      <Filter>viewer\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="include\viewer\OpenGLWidget.h">
+      <Filter>viewer\include</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

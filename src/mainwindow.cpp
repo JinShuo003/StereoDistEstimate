@@ -244,8 +244,9 @@ cv::Mat MainWindow::OneChannel2ThreeChannel(const cv::Mat& src)
     return _threeChannelImg;
 }
 
-cv::Mat MainWindow::DrawMatches(const cv::Mat& leftImg, const cv::Mat& rightImg, std::vector<cv::KeyPoint> vKeyPoints1,
-        std::vector<cv::KeyPoint> vKeyPoints2, std::vector<cv::DMatch> vInputMatch, std::vector<cv::Scalar> vColor)
+cv::Mat MainWindow::DrawMatches(const cv::Mat& leftImg, const cv::Mat& rightImg, const std::vector<cv::KeyPoint>& vKeyPoints1,
+    const std::vector<cv::KeyPoint>& vKeyPoints2, const std::vector<cv::DMatch>& vInputMatch,
+    const std::vector<cv::Scalar>& vColor)
 {
     cv::Mat _leftImg = leftImg.clone();
     cv::Mat _rightImg = rightImg.clone();
@@ -283,8 +284,9 @@ cv::Mat MainWindow::DrawMatches(const cv::Mat& leftImg, const cv::Mat& rightImg,
     return resultImg;
 }
 
-cv::Mat MainWindow::DrawDepth(const cv::Mat& featureMatchImg, std::vector<cv::KeyPoint> vKeyPointsLeft, 
-    std::vector<cv::DMatch> vInputMatch, std::vector<cv::Point3d> v3dPoints, std::vector<cv::Scalar> vColor){
+cv::Mat MainWindow::DrawDepth(const cv::Mat& featureMatchImg, const std::vector<cv::KeyPoint>& vKeyPointsLeft,
+    const std::vector<cv::DMatch>& vInputMatch, const std::vector<cv::Point3d>& v3dPoints,
+    const std::vector<cv::Scalar>& vColor){
     cv::Mat _featureMatchImg = featureMatchImg.clone();
     //处理图像通道
     if (_featureMatchImg.channels() == 1) {
@@ -300,9 +302,9 @@ cv::Mat MainWindow::DrawDepth(const cv::Mat& featureMatchImg, std::vector<cv::Ke
     return _featureMatchImg;
 }
 
-cv::Mat MainWindow::DrawDepthAndError(const cv::Mat& featureMatchImg, std::vector<cv::KeyPoint> vKeyPointsLeft,
-    std::vector<cv::DMatch> vInputMatch, std::vector<cv::Point3d> v3dPoints, 
-    std::vector<float> vError, std::vector<cv::Scalar> vColor)
+cv::Mat MainWindow::DrawDepthAndError(const cv::Mat& featureMatchImg, const std::vector<cv::KeyPoint>& vKeyPointsLeft,
+    const std::vector<cv::DMatch>& vInputMatch, const std::vector<cv::Point3d>& v3dPoints,
+    const std::vector<float>& vError, const std::vector<cv::Scalar>& vColor)
 {
     cv::Mat _featureMatchImg = featureMatchImg.clone();
     //处理图像通道
@@ -395,7 +397,7 @@ bool MainWindow::CheckContinuousProcessEnable()
     }
 }
 
-std::vector<cv::DMatch> MainWindow::DisFilter(std::vector<cv::DMatch> vInputMatch)
+std::vector<cv::DMatch> MainWindow::DisFilter(const std::vector<cv::DMatch>& vInputMatch)
 {
     //距离滤波，过滤掉所有描述子距离大于两倍最小距离的匹配
     auto min_max = minmax_element(vInputMatch.begin(), vInputMatch.end(),
@@ -411,8 +413,8 @@ std::vector<cv::DMatch> MainWindow::DisFilter(std::vector<cv::DMatch> vInputMatc
     return goodMatches;
 }
 
-std::vector<cv::DMatch> MainWindow::CosFilter(std::vector<cv::DMatch> vInputMatch,
-    cv::Mat descriptors1, cv::Mat descriptors2)
+std::vector<cv::DMatch> MainWindow::CosFilter(const std::vector<cv::DMatch>& vInputMatch,
+    const cv::Mat& descriptors1, const cv::Mat& descriptors2)
 {
     //余弦滤波，求所有匹配点描述子向量的余弦值，求出平均余弦值，过滤掉所有小于平均余弦值的匹配
     std::vector<float> vec_all1;//矩阵第一行的向量
@@ -424,8 +426,8 @@ std::vector<cv::DMatch> MainWindow::CosFilter(std::vector<cv::DMatch> vInputMatc
     std::vector<double> value_all;
     for (int i = 0; i < vInputMatch.size(); i++)
     {
-        int* data1 = descriptors1.ptr<int>(vInputMatch[i].queryIdx);
-        int* data2 = descriptors2.ptr<int>(vInputMatch[i].trainIdx);
+        const int* data1 = descriptors1.ptr<int>(vInputMatch[i].queryIdx);
+        const int* data2 = descriptors2.ptr<int>(vInputMatch[i].trainIdx);
         for (int j = 0; j < 128; j++)
         {
             int vec1 = data1[j];//读取描述子矩阵的一行的128个描述子，也就是某个特征点的描述子
@@ -451,7 +453,7 @@ std::vector<cv::DMatch> MainWindow::CosFilter(std::vector<cv::DMatch> vInputMatc
     return angle_matches;
 }
 
-std::vector<cv::DMatch> MainWindow::AverDisFilter(std::vector<cv::DMatch> vInputMatch)
+std::vector<cv::DMatch> MainWindow::AverDisFilter(const std::vector<cv::DMatch>& vInputMatch)
 {
     //平均距离滤波，过滤掉所有描述子距离大于0.7倍平均距离的匹配
     std::vector<cv::DMatch> goodMatches;
@@ -471,8 +473,8 @@ std::vector<cv::DMatch> MainWindow::AverDisFilter(std::vector<cv::DMatch> vInput
     return goodMatches;
 }
 
-std::vector<cv::DMatch> MainWindow::StereoRuleFilter(std::vector<cv::KeyPoint> vKeyPoints1,
-    std::vector<cv::KeyPoint> vKeyPoints2, std::vector<cv::DMatch> vInputMatch) 
+std::vector<cv::DMatch> MainWindow::StereoRuleFilter(const std::vector<cv::KeyPoint>& vKeyPoints1,
+    const std::vector<cv::KeyPoint>& vKeyPoints2, const std::vector<cv::DMatch>& vInputMatch)
 {
     //基于规则的滤波，左右特征点的视差必须为正，且必须行对齐
     std::vector<cv::DMatch> goodMatches;
@@ -488,7 +490,8 @@ std::vector<cv::DMatch> MainWindow::StereoRuleFilter(std::vector<cv::KeyPoint> v
     return goodMatches;
 }
 
-std::vector<cv::DMatch> MainWindow::LocationFilter(std::vector<cv::KeyPoint> vKeyPoints1, std::vector<cv::KeyPoint> vKeyPoints2, std::vector<cv::DMatch> vInputMatch)
+std::vector<cv::DMatch> MainWindow::LocationFilter(const std::vector<cv::KeyPoint>& vKeyPoints1,
+    const std::vector<cv::KeyPoint>& vKeyPoints2, const std::vector<cv::DMatch>& vInputMatch)
 {
     //map存储选择结果，初始全部为true，随着筛选将某些值更改为false，最终输出所有flag为true的结果
     std::vector<bool> keyPointSelectResult;

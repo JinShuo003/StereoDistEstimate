@@ -123,7 +123,6 @@ public:
     QLabel *ImgLabelLeft;
     QLabel *ImgLabelRight;
     QLabel *ImgLabelFeatureMatch;
-    QLabel *label_ImgName;
     QGroupBox *groupBox_3dViewer;
     QGroupBox *groupBox_Control;
     QTabWidget *tabWidget_2;
@@ -161,6 +160,10 @@ public:
     QPushButton *btn_NextImg;
     QSpacerItem *horizontalSpacer_8;
     QPushButton *btn_Reset;
+    QHBoxLayout *ProcessImgLayout_7;
+    QLabel *label;
+    QSpacerItem *horizontalSpacer;
+    QLabel *label_ImgName;
     QGroupBox *groupBox_DisparityImgShow;
     QLabel *ImgLabelLeft_2;
     QLabel *ImgLabelRight_2;
@@ -859,9 +862,6 @@ public:
         ImgLabelFeatureMatch->setGeometry(QRect(20, 20, 1920, 540));
         ImgLabelFeatureMatch->setMinimumSize(QSize(0, 0));
         ImgLabelFeatureMatch->setMaximumSize(QSize(10000, 10000));
-        label_ImgName = new QLabel(groupBox_ImgShow);
-        label_ImgName->setObjectName(QString::fromUtf8("label_ImgName"));
-        label_ImgName->setGeometry(QRect(1800, 550, 154, 25));
         groupBox_3dViewer = new QGroupBox(centralWidget);
         groupBox_3dViewer->setObjectName(QString::fromUtf8("groupBox_3dViewer"));
         groupBox_3dViewer->setGeometry(QRect(20, 610, 931, 581));
@@ -1001,7 +1001,7 @@ public:
         tab_ContinuousMode->setObjectName(QString::fromUtf8("tab_ContinuousMode"));
         verticalLayoutWidget_2 = new QWidget(tab_ContinuousMode);
         verticalLayoutWidget_2->setObjectName(QString::fromUtf8("verticalLayoutWidget_2"));
-        verticalLayoutWidget_2->setGeometry(QRect(10, 10, 271, 141));
+        verticalLayoutWidget_2->setGeometry(QRect(10, 10, 271, 191));
         verticalLayout = new QVBoxLayout(verticalLayoutWidget_2);
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
@@ -1091,6 +1091,33 @@ public:
 
         verticalLayout->addLayout(ProcessImgLayout_6);
 
+        ProcessImgLayout_7 = new QHBoxLayout();
+        ProcessImgLayout_7->setSpacing(6);
+        ProcessImgLayout_7->setObjectName(QString::fromUtf8("ProcessImgLayout_7"));
+        ProcessImgLayout_7->setContentsMargins(10, -1, 10, -1);
+        label = new QLabel(verticalLayoutWidget_2);
+        label->setObjectName(QString::fromUtf8("label"));
+        label->setMinimumSize(QSize(0, 30));
+        label->setMaximumSize(QSize(16777215, 30));
+
+        ProcessImgLayout_7->addWidget(label);
+
+        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        ProcessImgLayout_7->addItem(horizontalSpacer);
+
+        label_ImgName = new QLabel(verticalLayoutWidget_2);
+        label_ImgName->setObjectName(QString::fromUtf8("label_ImgName"));
+        label_ImgName->setMinimumSize(QSize(0, 30));
+        label_ImgName->setMaximumSize(QSize(16777215, 30));
+        label_ImgName->setFont(font1);
+        label_ImgName->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
+
+        ProcessImgLayout_7->addWidget(label_ImgName);
+
+
+        verticalLayout->addLayout(ProcessImgLayout_7);
+
         tabWidget_2->addTab(tab_ContinuousMode, QString());
         groupBox_DisparityImgShow = new QGroupBox(centralWidget);
         groupBox_DisparityImgShow->setObjectName(QString::fromUtf8("groupBox_DisparityImgShow"));
@@ -1120,7 +1147,7 @@ public:
         retranslateUi(MainWindow);
 
         tabWidget->setCurrentIndex(0);
-        tabWidget_2->setCurrentIndex(0);
+        tabWidget_2->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -1214,7 +1241,6 @@ public:
         ImgLabelLeft->setText(QString());
         ImgLabelRight->setText(QString());
         ImgLabelFeatureMatch->setText(QString());
-        label_ImgName->setText(QString());
         groupBox_3dViewer->setTitle(QCoreApplication::translate("MainWindow", "\344\270\211\347\273\264\345\217\257\350\247\206\345\214\226", nullptr));
         groupBox_Control->setTitle(QCoreApplication::translate("MainWindow", "\346\216\247\345\210\266\351\235\242\346\235\277", nullptr));
         btn_OpenLeftImg->setText(QCoreApplication::translate("MainWindow", "\346\211\223\345\274\200\345\267\246\344\276\247\345\233\276\345\203\217", nullptr));
@@ -1232,7 +1258,9 @@ public:
         btn_Pause->setText(QCoreApplication::translate("MainWindow", "\346\232\202\345\201\234", nullptr));
         btn_NextImg->setText(QCoreApplication::translate("MainWindow", "\344\270\213\344\270\200\345\274\240", nullptr));
         btn_Reset->setText(QCoreApplication::translate("MainWindow", "\351\207\215\347\275\256", nullptr));
-        tabWidget_2->setTabText(tabWidget_2->indexOf(tab_ContinuousMode), QCoreApplication::translate("MainWindow", "\350\277\236\347\273\255\346\250\241\345\274\217", nullptr));
+        label->setText(QCoreApplication::translate("MainWindow", "Image Name:", nullptr));
+        label_ImgName->setText(QString());
+        tabWidget_2->setTabText(tabWidget_2->indexOf(tab_ContinuousMode), QCoreApplication::translate("MainWindow", "\350\247\206\351\242\221\346\250\241\345\274\217", nullptr));
         groupBox_DisparityImgShow->setTitle(QCoreApplication::translate("MainWindow", "\350\247\206\345\267\256\345\233\276", nullptr));
         ImgLabelLeft_2->setText(QString());
         ImgLabelRight_2->setText(QString());

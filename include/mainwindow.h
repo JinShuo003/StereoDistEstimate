@@ -109,14 +109,17 @@ private:
     //单通道图片转三通道
     cv::Mat OneChannel2ThreeChannel(const cv::Mat& src);
     //在左右两张图上绘制匹配的关键点和匹配关系
-    cv::Mat DrawMatches(const cv::Mat& leftImg, const cv::Mat& rightImg, std::vector<cv::KeyPoint> vKeyPoints1,
-        std::vector<cv::KeyPoint> vKeyPoints2, std::vector<cv::DMatch> vInputMatch, std::vector<cv::Scalar> vColor);
+    cv::Mat DrawMatches(const cv::Mat& leftImg, const cv::Mat& rightImg, const std::vector<cv::KeyPoint>& vKeyPoints1,
+        const std::vector<cv::KeyPoint>& vKeyPoints2, const std::vector<cv::DMatch>& vInputMatch, 
+        const std::vector<cv::Scalar>& vColor);
     //在特征匹配图上的左侧图像特征点旁绘制深度
-    cv::Mat DrawDepth(const cv::Mat& featureMatchImg, std::vector<cv::KeyPoint> vKeyPointsLeft, std::vector<cv::DMatch> vInputMatch,
-        std::vector<cv::Point3d> v3dPoints, std::vector<cv::Scalar> vColor);
+    cv::Mat DrawDepth(const cv::Mat& featureMatchImg, const std::vector<cv::KeyPoint>& vKeyPointsLeft, 
+        const std::vector<cv::DMatch>& vInputMatch, const std::vector<cv::Point3d>& v3dPoints,
+        const std::vector<cv::Scalar>& vColor);
     //在特征匹配图上的左侧图像特征点旁绘制深度及误差
-    cv::Mat DrawDepthAndError(const cv::Mat& featureMatchImg, std::vector<cv::KeyPoint> vKeyPointsLeft, std::vector<cv::DMatch> vInputMatch,
-        std::vector<cv::Point3d> v3dPoints, std::vector<float> vError, std::vector<cv::Scalar> vColor);
+    cv::Mat DrawDepthAndError(const cv::Mat& featureMatchImg, const std::vector<cv::KeyPoint>& vKeyPointsLeft,
+        const std::vector<cv::DMatch>& vInputMatch, const std::vector<cv::Point3d>& v3dPoints,
+        const std::vector<float>& vError, const std::vector<cv::Scalar>& vColor);
     //检查图像尺寸是否合法
     bool CheckImgSize();
     //检查是否满足条件进行立体校正
@@ -126,21 +129,21 @@ private:
     //检查是否满足条件进行连续处理
     bool CheckContinuousProcessEnable();
     //距离法特征点筛选
-    std::vector<cv::DMatch> DisFilter(std::vector<cv::DMatch> vInputMatch);
+    std::vector<cv::DMatch> DisFilter(const std::vector<cv::DMatch>& vInputMatch);
     //余弦法特征点筛选
-    std::vector<cv::DMatch> CosFilter(std::vector<cv::DMatch> vInputMatch,
-        cv::Mat descriptors1, cv::Mat descriptors2);
+    std::vector<cv::DMatch> CosFilter(const std::vector<cv::DMatch>& vInputMatch,
+        const cv::Mat& descriptors1, const cv::Mat& descriptors2);
     //平均距离法特征点筛选
-    std::vector<cv::DMatch> AverDisFilter(std::vector<cv::DMatch> vInputMatch);
+    std::vector<cv::DMatch> AverDisFilter(const std::vector<cv::DMatch>& vInputMatch);
     //基于规则的特征点筛选
-    std::vector<cv::DMatch> StereoRuleFilter(std::vector<cv::KeyPoint> vKeyPoints1,
-        std::vector<cv::KeyPoint> vKeyPoints2, std::vector<cv::DMatch> vInputMatch);
+    std::vector<cv::DMatch> StereoRuleFilter(const std::vector<cv::KeyPoint>& vKeyPoints1,
+        const std::vector<cv::KeyPoint>& vKeyPoints2, const std::vector<cv::DMatch>& vInputMatch);
     //基于特征点位置的特征点筛选，筛去距离过近的特征点
-    std::vector<cv::DMatch> LocationFilter(std::vector<cv::KeyPoint> vKeyPoints1,
-        std::vector<cv::KeyPoint> vKeyPoints2, std::vector<cv::DMatch> vInputMatch);
+    std::vector<cv::DMatch> LocationFilter(const std::vector<cv::KeyPoint>& vKeyPoints1,
+        const std::vector<cv::KeyPoint>& vKeyPoints2, const std::vector<cv::DMatch>& vInputMatch);
     //!!TODO,RANSAC方法特征点筛选
-    std::vector<cv::DMatch> RansacFilter(cv::Mat imgLeft, std::vector<cv::DMatch> vInputMatch,
-        std::vector<cv::KeyPoint> vKeyPointLeft, std::vector<cv::KeyPoint> vKeyPointRight);
+    std::vector<cv::DMatch> RansacFilter(const cv::Mat& imgLeft, const std::vector<cv::DMatch>& vInputMatch,
+        const std::vector<cv::KeyPoint>& vKeyPointLeft, const std::vector<cv::KeyPoint>& vKeyPointRight);
     //鼠标点击，改变焦点
     void mousePressEvent(QMouseEvent* event);
 
