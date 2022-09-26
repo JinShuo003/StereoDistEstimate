@@ -146,9 +146,6 @@ bool MainWindow::LoadImageFromPath(QString imgPath, qint8 area)
     case m_showImageArea::disparity:
         m_disparityImg = ImageHandle::Mat2QImage(imgMat);
         //若视差图大小与原图不一致
-        std::cout << QString("%1, %2").arg(m_disparityImg.width()).arg(m_disparityImg.height()).toStdString() << std::endl;
-        std::cout << QString("%1, %2").arg(m_imgLeft.width()).arg(m_imgLeft.height()).toStdString() << std::endl;
-        std::cout << QString("%1, %2").arg(m_imgRight.width()).arg(m_imgRight.height()).toStdString() << std::endl;
         if (m_disparityImg.size() != m_imgLeft.size() || m_disparityImg.size() != m_imgRight.size()) {
             m_bIsDisparityImgLoaded = false;
             return false;
@@ -180,11 +177,7 @@ void MainWindow::ORBfeatureMatch()
     //特征点和描述子计算
     cv::Ptr<cv::ORB> ORBDetector = cv::ORB::create(500);
     ORBDetector->detectAndCompute(imgLeft, cv::Mat(), imgFeatureInformation.vKeyPoints1, imgFeatureInformation.descriptors1);
-    std::cout << "kp1.size:" << imgFeatureInformation.vKeyPoints1.size() << std::endl;
-    std::cout << "descriptors_1.size:" << imgFeatureInformation.descriptors1.size().height << std::endl;
     ORBDetector->detectAndCompute(imgRight, cv::Mat(), imgFeatureInformation.vKeyPoints2, imgFeatureInformation.descriptors2);
-    std::cout << "kp2.size:" << imgFeatureInformation.vKeyPoints2.size() << std::endl;
-    std::cout << "descriptors_2.size:" << imgFeatureInformation.descriptors2.size().height << std::endl;
 
     //特征匹配，暴力匹配
     cv::BFMatcher matcher(cv::NORM_HAMMING);
@@ -483,7 +476,7 @@ std::vector<cv::DMatch> MainWindow::StereoRuleFilter(const std::vector<cv::KeyPo
         float fParallax = vKeyPoints1[vInputMatch[i].queryIdx].pt.x - vKeyPoints2[vInputMatch[i].trainIdx].pt.x;
         float fHeightDiff = qAbs(vKeyPoints1[vInputMatch[i].queryIdx].pt.y - vKeyPoints2[vInputMatch[i].trainIdx].pt.y);
         //若配对的特征点的视差为正，且高度差在5个像素内，则认为是正确匹配
-        if (fParallax > 0) {
+        if (fParallax > 0 && fHeightDiff <=5) {
             goodMatches.push_back(vInputMatch[i]);
         }
     }
@@ -502,7 +495,6 @@ std::vector<cv::DMatch> MainWindow::LocationFilter(const std::vector<cv::KeyPoin
     //遍历所有匹配，按顺序选择，选中第i个点时，将其100*100像素范围内所有匹配的flag置为false
     for (int i = 0; i < vInputMatch.size(); i++)
     {
-        //std::cout << "keyPointSelectResult[i]: " << keyPointSelectResult[i] << std::endl;
         if (keyPointSelectResult[i] == false) {
             continue;
         }
@@ -653,19 +645,19 @@ bool MainWindow::Slot_StereoCalibBtn_clicked()
     cv::Mat R01 = m_pConigWindow->m_pCameraPara->extrinsicT10(cv::Rect(0, 0, 3, 3));
     cv::Mat t01 = m_pConigWindow->m_pCameraPara->extrinsicT10(cv::Rect(3, 0, 1, 3));
     cv::Mat R1, R2, P1, P2, Q;
-    myDebug::CvMatDebug(Cam0Matrix, myDebug::m_outputMode::console);
-    myDebug::CvMatDebug(Cam0Distortion, myDebug::m_outputMode::console);
-    myDebug::CvMatDebug(Cam1Matrix, myDebug::m_outputMode::console);
-    myDebug::CvMatDebug(Cam1Distortion, myDebug::m_outputMode::console);
-    myDebug::CvMatDebug(T01, myDebug::m_outputMode::console);
-    myDebug::CvMatDebug(R01, myDebug::m_outputMode::console);
-    myDebug::CvMatDebug(t01, myDebug::m_outputMode::console);
+
+    //手动去除畸变
+    cv::Mat dstLeft, dstRight;
+    cv::undistort(ImageHandle::QImage2Mat(m_imgLeft), dstLeft, Cam0Matrix, Cam0Distortion);
+    cv::undistort(ImageHandle::QImage2Mat(m_imgRight), dstRight, Cam1Matrix, Cam1Distortion);
+    cv::imshow("left", dstLeft);
+    cv::imshow("right", dstRight);
+    //cv::waitKey();
     
     //立体校正
     cv::stereoRectify(Cam0Matrix, Cam0Distortion, Cam1Matrix, Cam1Distortion,
         cv::Size(m_imgLeft.width(), m_imgLeft.height()), R01, t01, R1, R2, P1, P2, Q,
         cv::CALIB_ZERO_DISPARITY, 0);
-
     //使用R1,P1输出两个映射矩阵
     cv::Mat mapLx, mapLy;
     cv::initUndistortRectifyMap(Cam0Matrix, Cam0Distortion, R1, P1,
@@ -705,8 +697,8 @@ bool MainWindow::Slot_StereoCalibBtn_clicked()
             ShowImage(m_rectifyImgRight, m_showImageArea::right);
         }
         else {
-            //ShowCalibImage(m_showImageArea::left);
-            //ShowCalibImage(m_showImageArea::right);
+            /*ShowImage(m_rectifyImgLeft, m_showImageArea::left);
+            ShowImage(m_rectifyImgRight, m_showImageArea::right);*/
         }
     }
 
@@ -737,17 +729,27 @@ bool MainWindow::Slot_ExtractFeaturesBtn_clicked()
         imgFeatureInformation.vColor.push_back(cv::Scalar(fLineColor1, fLineColor2, fLineColor3));
     }
 
-    //绘制匹配结果并显示
+    //绘制匹配结果
     cv::Mat imgMatches = DrawMatches(ImageHandle::QImage2Mat(m_rectifyImgLeft),ImageHandle::QImage2Mat(m_rectifyImgRight),
         imgFeatureInformation.vKeyPoints1, imgFeatureInformation.vKeyPoints2, imgFeatureInformation.matches,
         imgFeatureInformation.vColor);
     QImage imgMatchesShow = ImageHandle::Mat2QImage(imgMatches);
-    ShowImage(imgMatchesShow, m_showImageArea::featureMatch);
-
+    
     //转为灰度图保存
     cv::Mat imgMatchesGray;
     cv::cvtColor(imgMatches, imgMatchesGray, cv::COLOR_BGR2GRAY);
     m_featureMatchImg = ImageHandle::Mat2QImage(imgMatchesGray);
+
+    QObject* pSender = sender();
+    if (Q_NULLPTR != pSender) {
+        if (pSender->objectName() == "btn_ExtractFeatures") {
+            ShowImage(imgMatchesShow, m_showImageArea::featureMatch);
+        }
+        else {
+            /*ShowImage(m_rectifyImgLeft, m_showImageArea::left);
+            ShowImage(m_rectifyImgRight, m_showImageArea::right);*/
+        }
+    }
 
     m_bIsFeatureExtracted = true;
 
@@ -800,11 +802,11 @@ bool MainWindow::Slot_CalDepthBtn_clicked()
     {
         cv::Point2d left2dPoint = imgFeatureInformation.vKeyPoints1[imgFeatureInformation.matches[i].queryIdx].pt;
         cv::Point2d right2dPoint = imgFeatureInformation.vKeyPoints2[imgFeatureInformation.matches[i].trainIdx].pt;
-        std::cout << "Point NO: " << i << std::endl;
-        std::cout << "Left point: " << left2dPoint << std::endl;
-        std::cout << "Right point: " << right2dPoint << std::endl;
-        std::cout << "Parallax: " << imgFeatureInformation.vParallax[i] << std::endl;
-        std::cout << "3dCoor: " << imgFeatureInformation.v3dPoints[i] << std::endl << std::endl;
+        //std::cout << "Point NO: " << i << std::endl;
+        //std::cout << "Left point: " << left2dPoint << std::endl;
+        //std::cout << "Right point: " << right2dPoint << std::endl;
+        //std::cout << "Parallax: " << imgFeatureInformation.vParallax[i] << std::endl;
+        //std::cout << "3dCoor: " << imgFeatureInformation.v3dPoints[i] << std::endl << std::endl;
     }
 
     //绘制匹配
@@ -936,9 +938,6 @@ void MainWindow::Slot_CalErrorBtn_clicked() {
         cv::Point2d right2dPoint = imgFeatureInformation.vKeyPoints2[imgFeatureInformation.matches[i].trainIdx].pt;
         qint16 nParallax = imgFeatureInformation.vParallax[i];
         qint16 nDisparity = (int)disparityImg.at<uchar>(left2dPoint);
-        std::cout << "Point NO: " << i << std::endl;
-        std::cout << "Parallax: " << nParallax << std::endl;
-        std::cout << "Disparity: " << nDisparity << std::endl << std::endl;
 
         imgFeatureInformation.vError.push_back(qAbs(nParallax - nDisparity) / (float)nDisparity);
     }
@@ -1040,6 +1039,7 @@ void MainWindow::Slot_ProcessNextImg()
     QFileInfo leftImgInfo(sLeftImgPath);
     QString sRightImgPath = QString("%1/%2").arg(m_sImgDirRight.absolutePath()).arg(*m_itImgName);
     QFileInfo rightImgInfo(sRightImgPath);
+    std::cout << sLeftImgPath.toStdString() << std::endl << sRightImgPath.toStdString() << std::endl << std::endl;
     if (!leftImgInfo.isFile() || !rightImgInfo.isFile()) {
         m_itImgName++;
         Slot_ProcessNextImg();
@@ -1051,9 +1051,9 @@ void MainWindow::Slot_ProcessNextImg()
         //从文件路径加载图像
         LoadImageFromPath(sLeftImgPath, m_showImageArea::left);
         LoadImageFromPath(sLeftImgPath, m_showImageArea::right);
-        //显示在界面
-        ShowImage(m_imgLeft, m_showImageArea::left);
-        ShowImage(m_imgRight, m_showImageArea::right);
+        ////显示在界面
+        //ShowImage(m_imgLeft, m_showImageArea::left);
+        //ShowImage(m_imgRight, m_showImageArea::right);
         //立体校正
         if (!Slot_StereoCalibBtn_clicked()) {
             return;
