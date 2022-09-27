@@ -23,7 +23,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
     QByteArrayData data[27];
-    char stringdata0[514];
+    char stringdata0[515];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -46,19 +46,19 @@ QT_MOC_LITERAL(10, 217, 24), // "Slot_CalErrorBtn_clicked"
 QT_MOC_LITERAL(11, 242, 26), // "Slot_ModifyParaBtn_clicked"
 QT_MOC_LITERAL(12, 269, 23), // "Slot_OpenDirBtn_clicked"
 QT_MOC_LITERAL(13, 293, 25), // "Slot_AutoStartBtn_clicked"
-QT_MOC_LITERAL(14, 319, 19), // "Slot_ProcessNextImg"
-QT_MOC_LITERAL(15, 339, 21), // "Slot_PauseBtn_clicked"
-QT_MOC_LITERAL(16, 361, 20), // "Slot_NextImg_clicked"
-QT_MOC_LITERAL(17, 382, 18), // "Slot_Reset_clicked"
-QT_MOC_LITERAL(18, 401, 18), // "Slot_ImgDirIsReady"
-QT_MOC_LITERAL(19, 420, 17), // "Slot_StopAutoMode"
-QT_MOC_LITERAL(20, 438, 17), // "Slot_ParaAccepted"
-QT_MOC_LITERAL(21, 456, 7), // "success"
-QT_MOC_LITERAL(22, 464, 15), // "m_showImageArea"
-QT_MOC_LITERAL(23, 480, 4), // "left"
-QT_MOC_LITERAL(24, 485, 5), // "right"
-QT_MOC_LITERAL(25, 491, 9), // "disparity"
-QT_MOC_LITERAL(26, 501, 12) // "featureMatch"
+QT_MOC_LITERAL(14, 319, 21), // "Slot_PauseBtn_clicked"
+QT_MOC_LITERAL(15, 341, 20), // "Slot_NextImg_clicked"
+QT_MOC_LITERAL(16, 362, 20), // "Slot_LastImg_clicked"
+QT_MOC_LITERAL(17, 383, 18), // "Slot_Reset_clicked"
+QT_MOC_LITERAL(18, 402, 18), // "Slot_ImgDirIsReady"
+QT_MOC_LITERAL(19, 421, 17), // "Slot_StopAutoMode"
+QT_MOC_LITERAL(20, 439, 17), // "Slot_ParaAccepted"
+QT_MOC_LITERAL(21, 457, 7), // "success"
+QT_MOC_LITERAL(22, 465, 15), // "m_showImageArea"
+QT_MOC_LITERAL(23, 481, 4), // "left"
+QT_MOC_LITERAL(24, 486, 5), // "right"
+QT_MOC_LITERAL(25, 492, 9), // "disparity"
+QT_MOC_LITERAL(26, 502, 12) // "featureMatch"
 
     },
     "MainWindow\0Signal_ImgDirIsReady\0\0"
@@ -71,12 +71,12 @@ QT_MOC_LITERAL(26, 501, 12) // "featureMatch"
     "Slot_CalErrorBtn_clicked\0"
     "Slot_ModifyParaBtn_clicked\0"
     "Slot_OpenDirBtn_clicked\0"
-    "Slot_AutoStartBtn_clicked\0Slot_ProcessNextImg\0"
+    "Slot_AutoStartBtn_clicked\0"
     "Slot_PauseBtn_clicked\0Slot_NextImg_clicked\0"
-    "Slot_Reset_clicked\0Slot_ImgDirIsReady\0"
-    "Slot_StopAutoMode\0Slot_ParaAccepted\0"
-    "success\0m_showImageArea\0left\0right\0"
-    "disparity\0featureMatch"
+    "Slot_LastImg_clicked\0Slot_Reset_clicked\0"
+    "Slot_ImgDirIsReady\0Slot_StopAutoMode\0"
+    "Slot_ParaAccepted\0success\0m_showImageArea\0"
+    "left\0right\0disparity\0featureMatch"
 };
 #undef QT_MOC_LITERAL
 
@@ -172,9 +172,9 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 9: _t->Slot_ModifyParaBtn_clicked(); break;
         case 10: _t->Slot_OpenDirBtn_clicked(); break;
         case 11: _t->Slot_AutoStartBtn_clicked(); break;
-        case 12: _t->Slot_ProcessNextImg(); break;
-        case 13: _t->Slot_PauseBtn_clicked(); break;
-        case 14: _t->Slot_NextImg_clicked(); break;
+        case 12: _t->Slot_PauseBtn_clicked(); break;
+        case 13: _t->Slot_NextImg_clicked(); break;
+        case 14: _t->Slot_LastImg_clicked(); break;
         case 15: _t->Slot_Reset_clicked(); break;
         case 16: _t->Slot_ImgDirIsReady(); break;
         case 17: _t->Slot_StopAutoMode(); break;

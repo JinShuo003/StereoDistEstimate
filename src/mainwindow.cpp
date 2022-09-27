@@ -72,11 +72,12 @@ void MainWindow::InitSystem(){
     connect(ui->btn_AutoStart, &QPushButton::clicked, this, &MainWindow::Slot_AutoStartBtn_clicked);
     connect(ui->btn_Pause, &QPushButton::clicked, this, &MainWindow::Slot_PauseBtn_clicked);
     connect(ui->btn_NextImg, &QPushButton::clicked, this, &MainWindow::Slot_NextImg_clicked);
+    connect(ui->btn_LastImg, &QPushButton::clicked, this, &MainWindow::Slot_LastImg_clicked);
     connect(ui->btn_Reset, &QPushButton::clicked, this, &MainWindow::Slot_Reset_clicked);
 
     connect(this, &MainWindow::Signal_ImgDirIsReady, this, &MainWindow::Slot_ImgDirIsReady);
     connect(this, &MainWindow::Signal_StopAutoMode, this, &MainWindow::Slot_StopAutoMode);
-    connect(this->loadNextImgTimer, &QTimer::timeout, this, &MainWindow::Slot_ProcessNextImg);
+    connect(this->loadNextImgTimer, &QTimer::timeout, this, &MainWindow::Slot_NextImg_clicked);
 
     connect(m_pConigWindow, &configuration::ParaAccepted, this, &MainWindow::Slot_ParaAccepted);
 
@@ -237,6 +238,30 @@ cv::Mat MainWindow::OneChannel2ThreeChannel(const cv::Mat& src)
     return _threeChannelImg;
 }
 
+void MainWindow::ProcessCurrentImg()
+{
+    ui->label_ImgName->setText(*m_itImgName);
+    QString sLeftImgPath = QString("%1/%2").arg(m_sImgDirLeft.absolutePath()).arg(*m_itImgName);
+    QFileInfo leftImgInfo(sLeftImgPath);
+    QString sRightImgPath = QString("%1/%2").arg(m_sImgDirRight.absolutePath()).arg(*m_itImgName);
+    QFileInfo rightImgInfo(sRightImgPath);
+    //从文件路径加载图像
+    LoadImageFromPath(sLeftImgPath, m_showImageArea::left);
+    LoadImageFromPath(sRightImgPath, m_showImageArea::right);
+    //立体校正
+    if (!Slot_StereoCalibBtn_clicked()) {
+        return;
+    }
+    //特征提取
+    if (!Slot_ExtractFeaturesBtn_clicked()) {
+        return;
+    }
+    //计算深度
+    if (!Slot_CalDepthBtn_clicked()) {
+        return;
+    }
+}
+
 cv::Mat MainWindow::DrawMatches(const cv::Mat& leftImg, const cv::Mat& rightImg, const std::vector<cv::KeyPoint>& vKeyPoints1,
     const std::vector<cv::KeyPoint>& vKeyPoints2, const std::vector<cv::DMatch>& vInputMatch,
     const std::vector<cv::Scalar>& vColor)
@@ -388,6 +413,25 @@ bool MainWindow::CheckContinuousProcessEnable()
         ui->btn_AutoStart->setEnabled(false);
         return false;
     }
+}
+
+bool MainWindow::CheckProcessNormal()
+{
+    //检查左侧图像文件夹是否存在
+    if (!m_sImgDirLeft.exists()) {
+        m_bLeftImgDirIsReady = false;
+        CheckContinuousProcessEnable();
+        QMessageBox::critical(this, "Error", "The left image directory not exist");
+        return false;
+    }
+    //检查右侧图像文件夹是否存在
+    if (!m_sImgDirRight.exists()) {
+        m_bRightImgDirIsReady = false;
+        CheckContinuousProcessEnable();
+        QMessageBox::critical(this, "Error", "The right image directory not exist");
+        return false;
+    }
+    return true;
 }
 
 std::vector<cv::DMatch> MainWindow::DisFilter(const std::vector<cv::DMatch>& vInputMatch)
@@ -645,14 +689,6 @@ bool MainWindow::Slot_StereoCalibBtn_clicked()
     cv::Mat R01 = m_pConigWindow->m_pCameraPara->extrinsicT10(cv::Rect(0, 0, 3, 3));
     cv::Mat t01 = m_pConigWindow->m_pCameraPara->extrinsicT10(cv::Rect(3, 0, 1, 3));
     cv::Mat R1, R2, P1, P2, Q;
-
-    //手动去除畸变
-    cv::Mat dstLeft, dstRight;
-    cv::undistort(ImageHandle::QImage2Mat(m_imgLeft), dstLeft, Cam0Matrix, Cam0Distortion);
-    cv::undistort(ImageHandle::QImage2Mat(m_imgRight), dstRight, Cam1Matrix, Cam1Distortion);
-    cv::imshow("left", dstLeft);
-    cv::imshow("right", dstRight);
-    //cv::waitKey();
     
     //立体校正
     cv::stereoRectify(Cam0Matrix, Cam0Distortion, Cam1Matrix, Cam1Distortion,
@@ -984,7 +1020,7 @@ void MainWindow::Slot_OpenDirBtn_clicked()
                 QStringList imgNames = currentDir.entryList(nameFilter, QDir::Files, QDir::Name);
                 //保存所有文件名
                 m_ImgNameList = std::move(imgNames);
-                m_itImgName = m_ImgNameList.begin();
+                m_itImgName = m_ImgNameList.begin()-1;
                 m_bLeftImgDirIsReady = true;
                 QMessageBox::information(this, "Information", QString("Selected successfully, %1 images are loaded")
                     .arg(m_ImgNameList.size()));
@@ -1007,73 +1043,16 @@ void MainWindow::Slot_AutoStartBtn_clicked()
     loadNextImgTimer->start(20);
     ui->btn_Pause->setEnabled(true);
     ui->btn_NextImg->setEnabled(false);
+    ui->btn_LastImg->setEnabled(false);
     ui->btn_Reset->setEnabled(false);
-}
-
-void MainWindow::Slot_ProcessNextImg()
-{
-    //检查是否已经处理完毕所有图像
-    if (m_itImgName == m_ImgNameList.end()) {
-        QMessageBox::information(this, "Information", "No more image can be processed");
-        loadNextImgTimer->stop();
-        ui->btn_Pause->setEnabled(false);
-        ui->btn_Reset->setEnabled(true);
-        return;
-    }
-    //检查左侧图像文件夹是否存在
-    if (!m_sImgDirLeft.exists()) {
-        m_bLeftImgDirIsReady = false;
-        CheckContinuousProcessEnable();
-        QMessageBox::critical(this, "Error", "The left image directory not exist");
-        return;
-    }
-    //检查右侧图像文件夹是否存在
-    if (!m_sImgDirRight.exists()) {
-        m_bRightImgDirIsReady = false;
-        CheckContinuousProcessEnable();
-        QMessageBox::critical(this, "Error", "The right image directory not exist");
-        return;
-    }
-    //检查左右侧图像是否同时存在，同时存在则处理，否则读取下一张图
-    QString sLeftImgPath = QString("%1/%2").arg(m_sImgDirLeft.absolutePath()).arg(*m_itImgName);
-    QFileInfo leftImgInfo(sLeftImgPath);
-    QString sRightImgPath = QString("%1/%2").arg(m_sImgDirRight.absolutePath()).arg(*m_itImgName);
-    QFileInfo rightImgInfo(sRightImgPath);
-    std::cout << sLeftImgPath.toStdString() << std::endl << sRightImgPath.toStdString() << std::endl << std::endl;
-    if (!leftImgInfo.isFile() || !rightImgInfo.isFile()) {
-        m_itImgName++;
-        Slot_ProcessNextImg();
-        return;
-    }
-    //左右侧图像同时存在
-    else {
-        ui->label_ImgName->setText(*m_itImgName);
-        //从文件路径加载图像
-        LoadImageFromPath(sLeftImgPath, m_showImageArea::left);
-        LoadImageFromPath(sLeftImgPath, m_showImageArea::right);
-        ////显示在界面
-        //ShowImage(m_imgLeft, m_showImageArea::left);
-        //ShowImage(m_imgRight, m_showImageArea::right);
-        //立体校正
-        if (!Slot_StereoCalibBtn_clicked()) {
-            return;
-        }
-        //特征提取
-        if (!Slot_ExtractFeaturesBtn_clicked()) {
-            return;
-        }
-        //计算深度
-        if (!Slot_CalDepthBtn_clicked()) {
-            return;
-        }
-        m_itImgName++;
-    }
 }
 
 void MainWindow::Slot_PauseBtn_clicked()
 {
     loadNextImgTimer->stop();
+    ui->btn_Pause->setEnabled(false);
     ui->btn_NextImg->setEnabled(true);
+    ui->btn_LastImg->setEnabled(true);
     ui->btn_Reset->setEnabled(true);
 }
 
@@ -1088,20 +1067,82 @@ void MainWindow::Slot_StopAutoMode() {
     ui->btn_AutoStart->setEnabled(false);
     ui->btn_Pause->setEnabled(false);
     ui->btn_NextImg->setEnabled(false);
+    ui->btn_LastImg->setEnabled(false);
     ui->btn_Reset->setEnabled(false);
 }
 
 void MainWindow::Slot_NextImg_clicked()
 {
-    Slot_ProcessNextImg();
+    //检查是否已经处理完毕所有图像
+    if (m_itImgName == m_ImgNameList.end()-1) {
+        QMessageBox::information(this, "Information", "No more image can be processed");
+        loadNextImgTimer->stop();
+        ui->btn_Pause->setEnabled(false);
+        ui->btn_NextImg->setEnabled(true);
+        ui->btn_LastImg->setEnabled(true);
+        ui->btn_Reset->setEnabled(true);
+        return;
+    }
+    m_itImgName++;
+    //检查是否已到达结尾，文件夹是否存在
+    if (!CheckProcessNormal()) {
+        return;
+    }
+    //检查左右侧图像是否同时存在，同时存在则处理，否则读取下一张图
+    QString sLeftImgPath = QString("%1/%2").arg(m_sImgDirLeft.absolutePath()).arg(*m_itImgName);
+    QFileInfo leftImgInfo(sLeftImgPath);
+    QString sRightImgPath = QString("%1/%2").arg(m_sImgDirRight.absolutePath()).arg(*m_itImgName);
+    QFileInfo rightImgInfo(sRightImgPath);
+    std::cout << sLeftImgPath.toStdString() << std::endl << sRightImgPath.toStdString() << std::endl << std::endl;
+    if (!leftImgInfo.isFile() || !rightImgInfo.isFile()) {
+        m_itImgName++;
+        Slot_NextImg_clicked();
+        return;
+    }
+    ProcessCurrentImg();
+    CheckCalibEnable();
+}
+
+void MainWindow::Slot_LastImg_clicked()
+{
+    //检查是否已经处理完毕所有图像
+    if (m_itImgName == m_ImgNameList.begin()) {
+        QMessageBox::information(this, "Information", "Already the first image");
+        loadNextImgTimer->stop();
+        ui->btn_Pause->setEnabled(false);
+        ui->btn_NextImg->setEnabled(true);
+        ui->btn_LastImg->setEnabled(true);
+        ui->btn_Reset->setEnabled(true);
+        return;
+    }
+    m_itImgName--;
+    //检查是否已到达结尾，文件夹是否存在
+    if (!CheckProcessNormal()) {
+        return;
+    }
+    //检查左右侧图像是否同时存在，同时存在则处理，否则读取下一张图
+    QString sLeftImgPath = QString("%1/%2").arg(m_sImgDirLeft.absolutePath()).arg(*m_itImgName);
+    QFileInfo leftImgInfo(sLeftImgPath);
+    QString sRightImgPath = QString("%1/%2").arg(m_sImgDirRight.absolutePath()).arg(*m_itImgName);
+    QFileInfo rightImgInfo(sRightImgPath);
+    std::cout << sLeftImgPath.toStdString() << std::endl << sRightImgPath.toStdString() << std::endl << std::endl;
+    if (!leftImgInfo.isFile() || !rightImgInfo.isFile()) {
+        m_itImgName--;
+        Slot_NextImg_clicked();
+        return;
+    }
+    ProcessCurrentImg();
+    CheckCalibEnable();
 }
 
 void MainWindow::Slot_Reset_clicked()
 {
     //从头开始读取
-    m_itImgName = m_ImgNameList.begin();
+    m_itImgName = m_ImgNameList.begin()-1;
     //处理第一张图
-    Slot_ProcessNextImg();
+    Slot_NextImg_clicked();
+    ui->btn_NextImg->setEnabled(true);
+    ui->btn_LastImg->setEnabled(true);
 }
 
 void MainWindow::Slot_ParaAccepted(bool success)
@@ -1185,7 +1226,6 @@ void MainWindow::Slot_ParaAccepted(bool success)
         ui->textEdit_Q_show->setText("");
     }
 }
-
 
 void MainWindow::mousePressEvent(QMouseEvent* event)
 {

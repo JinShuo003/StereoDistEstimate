@@ -159,7 +159,11 @@ public:
     QHBoxLayout *ProcessImgLayout_6;
     QPushButton *btn_NextImg;
     QSpacerItem *horizontalSpacer_8;
+    QPushButton *btn_LastImg;
+    QHBoxLayout *ProcessImgLayout_8;
     QPushButton *btn_Reset;
+    QSpacerItem *horizontalSpacer_9;
+    QPushButton *btn_Reset_2;
     QHBoxLayout *ProcessImgLayout_7;
     QLabel *label;
     QSpacerItem *horizontalSpacer;
@@ -185,7 +189,7 @@ public:
         centralWidget->setMaximumSize(QSize(10000, 10000));
         groupBox_Para = new QGroupBox(centralWidget);
         groupBox_Para->setObjectName(QString::fromUtf8("groupBox_Para"));
-        groupBox_Para->setGeometry(QRect(2000, 300, 331, 681));
+        groupBox_Para->setGeometry(QRect(2000, 350, 331, 681));
         btn_ModifyPara = new QPushButton(groupBox_Para);
         btn_ModifyPara->setObjectName(QString::fromUtf8("btn_ModifyPara"));
         btn_ModifyPara->setGeometry(QRect(70, 20, 100, 30));
@@ -868,10 +872,10 @@ public:
         groupBox_3dViewer->setMinimumSize(QSize(0, 450));
         groupBox_Control = new QGroupBox(centralWidget);
         groupBox_Control->setObjectName(QString::fromUtf8("groupBox_Control"));
-        groupBox_Control->setGeometry(QRect(2000, 10, 331, 271));
+        groupBox_Control->setGeometry(QRect(2000, 10, 331, 321));
         tabWidget_2 = new QTabWidget(groupBox_Control);
         tabWidget_2->setObjectName(QString::fromUtf8("tabWidget_2"));
-        tabWidget_2->setGeometry(QRect(20, 20, 295, 231));
+        tabWidget_2->setGeometry(QRect(20, 20, 295, 281));
         tab_SingleMode = new QWidget();
         tab_SingleMode->setObjectName(QString::fromUtf8("tab_SingleMode"));
         verticalLayoutWidget = new QWidget(tab_SingleMode);
@@ -1001,7 +1005,7 @@ public:
         tab_ContinuousMode->setObjectName(QString::fromUtf8("tab_ContinuousMode"));
         verticalLayoutWidget_2 = new QWidget(tab_ContinuousMode);
         verticalLayoutWidget_2->setObjectName(QString::fromUtf8("verticalLayoutWidget_2"));
-        verticalLayoutWidget_2->setGeometry(QRect(10, 10, 271, 191));
+        verticalLayoutWidget_2->setGeometry(QRect(10, 10, 271, 241));
         verticalLayout = new QVBoxLayout(verticalLayoutWidget_2);
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
@@ -1080,16 +1084,44 @@ public:
 
         ProcessImgLayout_6->addItem(horizontalSpacer_8);
 
+        btn_LastImg = new QPushButton(verticalLayoutWidget_2);
+        btn_LastImg->setObjectName(QString::fromUtf8("btn_LastImg"));
+        btn_LastImg->setEnabled(false);
+        btn_LastImg->setMinimumSize(QSize(100, 30));
+        btn_LastImg->setFont(font1);
+
+        ProcessImgLayout_6->addWidget(btn_LastImg);
+
+
+        verticalLayout->addLayout(ProcessImgLayout_6);
+
+        ProcessImgLayout_8 = new QHBoxLayout();
+        ProcessImgLayout_8->setSpacing(6);
+        ProcessImgLayout_8->setObjectName(QString::fromUtf8("ProcessImgLayout_8"));
+        ProcessImgLayout_8->setContentsMargins(10, -1, 10, -1);
         btn_Reset = new QPushButton(verticalLayoutWidget_2);
         btn_Reset->setObjectName(QString::fromUtf8("btn_Reset"));
         btn_Reset->setEnabled(false);
         btn_Reset->setMinimumSize(QSize(100, 30));
+        btn_Reset->setMaximumSize(QSize(100, 30));
         btn_Reset->setFont(font1);
 
-        ProcessImgLayout_6->addWidget(btn_Reset);
+        ProcessImgLayout_8->addWidget(btn_Reset);
+
+        horizontalSpacer_9 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        ProcessImgLayout_8->addItem(horizontalSpacer_9);
+
+        btn_Reset_2 = new QPushButton(verticalLayoutWidget_2);
+        btn_Reset_2->setObjectName(QString::fromUtf8("btn_Reset_2"));
+        btn_Reset_2->setEnabled(false);
+        btn_Reset_2->setMinimumSize(QSize(100, 30));
+        btn_Reset_2->setFont(font1);
+
+        ProcessImgLayout_8->addWidget(btn_Reset_2);
 
 
-        verticalLayout->addLayout(ProcessImgLayout_6);
+        verticalLayout->addLayout(ProcessImgLayout_8);
 
         ProcessImgLayout_7 = new QHBoxLayout();
         ProcessImgLayout_7->setSpacing(6);
@@ -1257,7 +1289,9 @@ public:
         btn_AutoStart->setText(QCoreApplication::translate("MainWindow", "\345\274\200\345\247\213", nullptr));
         btn_Pause->setText(QCoreApplication::translate("MainWindow", "\346\232\202\345\201\234", nullptr));
         btn_NextImg->setText(QCoreApplication::translate("MainWindow", "\344\270\213\344\270\200\345\274\240", nullptr));
+        btn_LastImg->setText(QCoreApplication::translate("MainWindow", "\344\270\212\344\270\200\345\274\240", nullptr));
         btn_Reset->setText(QCoreApplication::translate("MainWindow", "\351\207\215\347\275\256", nullptr));
+        btn_Reset_2->setText(QString());
         label->setText(QCoreApplication::translate("MainWindow", "Image Name:", nullptr));
         label_ImgName->setText(QString());
         tabWidget_2->setTabText(tabWidget_2->indexOf(tab_ContinuousMode), QCoreApplication::translate("MainWindow", "\350\247\206\351\242\221\346\250\241\345\274\217", nullptr));

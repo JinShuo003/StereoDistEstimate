@@ -77,6 +77,7 @@ private:
     QDir m_sImgDirRight;
     //图像名，左右侧必须一一对应，若找不到对应则跳过
     QStringList m_ImgNameList;
+    //图像名迭代器，指向当前处理完的图像
     QStringList::iterator m_itImgName;
     //左右文件夹是否已加载
     bool m_bLeftImgDirIsReady = false;
@@ -108,6 +109,8 @@ private:
     void SURFfeatureMatch();
     //单通道图片转三通道
     cv::Mat OneChannel2ThreeChannel(const cv::Mat& src);
+    //处理当前图像
+    void ProcessCurrentImg();
     //在左右两张图上绘制匹配的关键点和匹配关系
     cv::Mat DrawMatches(const cv::Mat& leftImg, const cv::Mat& rightImg, const std::vector<cv::KeyPoint>& vKeyPoints1,
         const std::vector<cv::KeyPoint>& vKeyPoints2, const std::vector<cv::DMatch>& vInputMatch, 
@@ -128,6 +131,8 @@ private:
     bool CheckCalErrorEnable();
     //检查是否满足条件进行连续处理
     bool CheckContinuousProcessEnable();
+    //检查当前图片名迭代器指向的元素是否可以被正常处理
+    bool CheckProcessNormal();
     //距离法特征点筛选
     std::vector<cv::DMatch> DisFilter(const std::vector<cv::DMatch>& vInputMatch);
     //余弦法特征点筛选
@@ -162,9 +167,9 @@ private slots:
     void Slot_ModifyParaBtn_clicked();
     void Slot_OpenDirBtn_clicked();
     void Slot_AutoStartBtn_clicked();
-    void Slot_ProcessNextImg();
     void Slot_PauseBtn_clicked();
     void Slot_NextImg_clicked();
+    void Slot_LastImg_clicked();
     void Slot_Reset_clicked();
     void Slot_ImgDirIsReady();
     void Slot_StopAutoMode();
