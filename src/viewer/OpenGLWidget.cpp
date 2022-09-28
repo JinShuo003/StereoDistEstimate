@@ -1,5 +1,6 @@
 #include "viewer/OpenGLWidget.h"
 
+#include "QPushButton"
 #include "QRandomGenerator"
 #include "QtMath"
 
@@ -24,12 +25,46 @@ OpenGLWidget::OpenGLWidget(QWidget* parent):
 	m_camera.reset(-2, 0, 0.5, 0, 10, 0);
 	m_camera.update();
 
+	init();
 	installEventFilter(&m_camera);
 }
 
 OpenGLWidget::~OpenGLWidget()
 {
 
+}
+
+void OpenGLWidget::init() {
+	//Slider
+	m_cameraSpeedControler = new QSlider(Qt::Horizontal, this);
+	m_cameraSpeedControler->setRange(1, 7);
+	m_cameraSpeedControler->setSingleStep(1);
+	m_cameraSpeedControler->setValue(4);
+	m_cameraSpeedControler->setTracking(true);
+	m_cameraSpeedControler->setFixedSize(QSize(100, 30));
+	float fCurrentSpeed = (float)m_cameraSpeedControler->value() / 100;
+	m_camera.m_lookSpeed = fCurrentSpeed * 1.5;
+	m_camera.m_moveSpeed = fCurrentSpeed;
+	m_cameraSpeedControler->setStyleSheet("QSlider::handle:horizontal{ background: rgb(0, 0, 0)}");
+
+	//label
+	m_cameraSpeedLabel = new QLabel(this);
+	m_cameraSpeedLabel->setFixedSize(QSize(110, 30));
+	m_cameraSpeedLabel->setText(QString("Camera Speed: %1").arg(m_cameraSpeedControler->value()));
+	m_cameraSpeedLabel->setStyleSheet("color:red;");
+
+	//layout
+	m_cameraSpeedVLayout = new QVBoxLayout();
+	m_cameraSpeedHLayout = new QHBoxLayout();
+	m_cameraSpeedHLayout->addStretch();
+	m_cameraSpeedHLayout->addWidget(m_cameraSpeedLabel);
+	m_cameraSpeedHLayout->addWidget(m_cameraSpeedControler);
+	m_cameraSpeedVLayout->addLayout(m_cameraSpeedHLayout);
+	m_cameraSpeedVLayout->addStretch();
+	this->setLayout(m_cameraSpeedVLayout);
+
+	//connect
+	connect(this->m_cameraSpeedControler, &QSlider::valueChanged, this, &OpenGLWidget::Slot_SliderValueChanged);
 }
 
 void OpenGLWidget::mousePressEvent(QMouseEvent* event)
@@ -308,9 +343,11 @@ void OpenGLWidget::GetPointData(std::vector<cv::Point3d> v3dPoints, std::vector<
 		vertex_point_vec[i][0].push_back(vColor[i][2] / 255.f);
 		vertex_point_vec[i][0].push_back(vColor[i][1] / 255.f);
 		vertex_point_vec[i][0].push_back(vColor[i][0] / 255.f);
+		//计算圆的半径
 		float fR = v3dPoints[i].z / 100;
 		fR = fR > 1 ? 1 : fR;
 		fR = fR < 0.05 ? 0.05 : fR;
+		//将圆等分为36个三角形，每个圆心角为10度
 		for (int j = 1; j < 38; j++)
 		{
 			float fRadian = j * 2 * M_PI / 36;
@@ -326,7 +363,6 @@ void OpenGLWidget::GetPointData(std::vector<cv::Point3d> v3dPoints, std::vector<
 	if (Q_NULLPTR == vertexData[5].vertex) {
 		delete[] vertexData[5].vertex;
 	}
-
 	vertexData[5].vertex = new float[v3dPoints.size() * 38 * 6];
 	for (int i = 0; i < vertex_point_vec.size(); i++)
 	{
@@ -590,4 +626,13 @@ void OpenGLWidget::paintGL() {
 	if (bIs3dPointsSetted == true) {
 		paintPoint();
 	}
+}
+
+
+void OpenGLWidget::Slot_SliderValueChanged()
+{
+	float fCurrentSpeed = (float)m_cameraSpeedControler->value() / 100;
+	m_camera.m_lookSpeed = fCurrentSpeed * 1.5;
+	m_camera.m_moveSpeed = fCurrentSpeed;
+	m_cameraSpeedLabel->setText(QString("Camera Speed: %1").arg(m_cameraSpeedControler->value()));
 }

@@ -9,6 +9,9 @@
 #include "QOpenGLShaderProgram"
 #include "QCoreApplication"
 #include "QOpenGLTexture"
+#include "QSlider"
+#include "QLabel"
+#include "QLayout"
 
 #include "camera.h"
 
@@ -44,6 +47,7 @@ protected:
 	virtual void paintGL() override;
 
 private:
+	void init();
 	//get data
 	void GetLeftCamData();
 	void GetRightCamData();
@@ -86,6 +90,14 @@ private:
 	QOpenGLShaderProgram* m_program[6] = {Q_NULLPTR};
 	//texture
 	QOpenGLTexture* m_texture = Q_NULLPTR;
+	//相机速度垂直布局
+	QVBoxLayout* m_cameraSpeedVLayout = Q_NULLPTR;
+	//相机速度水平布局
+	QHBoxLayout* m_cameraSpeedHLayout = Q_NULLPTR;
+	//相机速度提示
+	QLabel* m_cameraSpeedLabel = Q_NULLPTR;
+	//水平滚动条，控制平移、旋转速度
+	QSlider* m_cameraSpeedControler = Q_NULLPTR;
 
 	//变换矩阵
 	QMatrix4x4 m_projection;
@@ -98,5 +110,8 @@ private:
 	//三维点数据是否已设置
 	bool bIs3dLinesSetted = false;
 	bool bIs3dPointsSetted = false;
+
+public slots:
+	void Slot_SliderValueChanged();
 };
 
