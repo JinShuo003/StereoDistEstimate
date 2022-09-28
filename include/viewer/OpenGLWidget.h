@@ -49,9 +49,10 @@ private:
 	void GetRightCamData();
 	void GetCoorData();
 	void GetGroundData();
-	void GetPointData(std::vector<cv::Point3d> v3dPoints);
+	void GetPointData(std::vector<cv::Point3d> v3dPoints, std::vector<cv::Scalar> vColor);
 	//initialize
 	void initData(UINT8 index);
+	void initLineData();
 	void initPointData();
 	//paint
 	void paintCam(UINT8 area);
@@ -79,7 +80,7 @@ private:
 	QString m_sVertexShader;
 	//面片着色器
 	QString m_sFragmentShader;
-	//0.左侧相机 1.右侧相机 2.坐标轴 3.地图点
+	//0.左侧相机 1.右侧相机 2.坐标轴 3.地面 4.空间线 5.空间点
 	QOpenGLVertexArrayObject m_VAO[6];
 	QOpenGLBuffer m_VBO[6];
 	QOpenGLShaderProgram* m_program[6] = {Q_NULLPTR};

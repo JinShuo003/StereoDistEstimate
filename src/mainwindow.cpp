@@ -865,7 +865,7 @@ bool MainWindow::Slot_CalDepthBtn_clicked()
     m_pOpenGLWidget->SetLineData(imgFeatureInformation.v3dPoints, imgFeatureInformation.vColor);
 
     m_bIsDepthCalculated = true;
-
+    
     CheckCalErrorEnable();
 
     return true;
@@ -1064,7 +1064,7 @@ void MainWindow::Slot_ImgDirIsReady()
 
 void MainWindow::Slot_StopAutoMode() {
     loadNextImgTimer->stop();
-    ui->btn_AutoStart->setEnabled(false);
+    ui->btn_AutoStart->setEnabled(true);
     ui->btn_Pause->setEnabled(false);
     ui->btn_NextImg->setEnabled(false);
     ui->btn_LastImg->setEnabled(false);

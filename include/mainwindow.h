@@ -77,7 +77,7 @@ private:
     QDir m_sImgDirRight;
     //图像名，左右侧必须一一对应，若找不到对应则跳过
     QStringList m_ImgNameList;
-    //图像名迭代器，指向当前处理完的图像
+    //图像名迭代器，指向当前处理完的图像，初始指向begin-1
     QStringList::iterator m_itImgName;
     //左右文件夹是否已加载
     bool m_bLeftImgDirIsReady = false;
